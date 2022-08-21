@@ -27,12 +27,6 @@ services:
         LOG_LEVEL: "${LOG_LEVEL-trace}"
         GRACEFUL_TIMEOUT: "${GRACEFUL_TIMEOUT-5s}"
     restart: always
-#    environment:
-#      TLS_ADDR: "${TLS_ADDR-server:8443}"
-#      STORAGE_TYPE: "${STORAGE_TYPE-sqlite}"
-#      STORAGE_ADDR: "${STORAGE_ADDR-db.sqlite}"
-#      LOG_LEVEL: "${LOG_LEVEL-trace}"
-#      GRACEFUL_TIMEOUT: "${GRACEFUL_TIMEOUT-5s}"
     ports:
       - "8443:8443"
     expose:

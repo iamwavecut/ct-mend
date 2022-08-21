@@ -3,7 +3,7 @@ GOARCH := amd64 # change to arm64 if on mac m1/m2 or surface
 PWD := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 .PHONY: dev
-dev: ## test lint cleanup
+dev: ## generate vet fmt lint test mod-tidy
 dev: generate vet fmt lint test mod-tidy
 
 .PHONY: build
@@ -12,7 +12,7 @@ build: generate mod-tidy
 	CGO_ENABLED=1 GOOS=linux GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go
 
 .PHONY: generate
-generate: ## go generate
+generate: ## go generate and OPENSSL keys generation
 	go generate ./...
 	openssl req -x509 -nodes -newkey rsa:2048 -keyout resources/certs/server.rsa.key -out resources/certs/server.rsa.crt -days 3650 -subj "/C=CA/ST=QC/O=localhost/CN=localhost"
 
