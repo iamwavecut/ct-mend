@@ -1,5 +1,3 @@
-
-[![Go Reference](https://pkg.go.dev/badge/github.com/iamwavecut/ct-mend.svg)](https://pkg.go.dev/github.com/iamwavecut/ct-mend)
 [![go.mod](https://img.shields.io/github/go-mod/go-version/iamwavecut/ct-mend)](go.mod)
 [![Build Status](https://img.shields.io/github/workflow/status/iamwavecut/ct-mend/build)](https://github.com/iamwavecut/ct-mend/actions?query=workflow%3Abuild+branch%3Amain)
 [![Go Report Card](https://goreportcard.com/badge/github.com/iamwavecut/ct-mend)](https://goreportcard.com/report/github.com/iamwavecut/ct-mend)
