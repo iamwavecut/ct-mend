@@ -25,7 +25,7 @@ jobs:
           go-version: 1.18
 
       - name: Build
-        run: make ci
+        run: make test build
       - name: Upload coverage
         uses: actions/upload-artifact@v3
         with:
@@ -35,8 +35,8 @@ jobs:
       - name: Upload dist
         uses: actions/upload-artifact@v3
         with:
-          name: dist
-          path: dist
+          name: server
+          path: server
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3.1.0

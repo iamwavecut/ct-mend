@@ -4,22 +4,17 @@ PWD := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 .PHONY: dev
 dev: ## test lint cleanup
-dev: go-clean generate vet fmt lint test mod-tidy
+dev: generate vet fmt lint test mod-tidy
 
-.PHONY: build build-linux build-win build-mac
+.PHONY: build
 build: ## build server binary
-build: build-linux
-build-linux: generate mod-tidy
+build: generate mod-tidy
 	CGO_ENABLED=1 GOOS=linux GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go
-build-win: generate mod-tidy
-	CGO_ENABLED=1 GOOS=windows GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server.exe cmd/server/main.go
-build-mac: generate mod-tidy
-	CGO_ENABLED=1 GOOS=darwin GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go
 
 .PHONY: generate
 generate: ## go generate
-	#docker run -v "${PWD}":/src -w /src vektra/mockery --all --inpackage
 	go generate ./...
+	openssl req -x509 -nodes -newkey rsa:2048 -keyout resources/certs/server.rsa.key -out resources/certs/server.rsa.crt -days 3650 -subj "/C=CA/ST=QC/O=localhost/CN=localhost"
 
 .PHONY: vet
 vet: ## go vet
@@ -46,6 +41,8 @@ mod-tidy: ## go mod tidy
 .PHONY: go-clean
 go-clean: ## go clean build, test and modules caches
 	go clean -r -i -cache -testcache -modcache
+	rm -f coverage.*
+	rm -f resources/certs/server.*
 
 .PHONY: run-client
 run-client: ## run client which tries all the api endpoints and prints log output

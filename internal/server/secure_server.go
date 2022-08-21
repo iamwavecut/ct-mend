@@ -301,11 +301,6 @@ func New(config config.TLS, db storage.Adapter, gracefulTimeout time.Duration) *
 		timeout: gracefulTimeout,
 	}
 
-	server := s.server
-	if server == nil {
-		server = &http.Server{}
-	}
-
 	s.server = &http.Server{
 		ReadHeaderTimeout: s.timeout,
 		Addr:              s.addr,

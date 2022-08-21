@@ -75,17 +75,20 @@ issues:
   # enable issues excluded by default 
   exclude-use-default: false
   exclude-rules:
-    - path: cmd/client/*
+    - path: "cmd/client/.+"
       linters:
         - gomnd
         - gosec
         - forcetypeassert
         - gocognit
         - gocyclo
-    - path: internal/server/tls.go
+    - path: "internal/server/tls.go$"
       linters:
         - dupl
-    - path: cmd/server/main.go
+    - path: ".+/main.go$"
       linters:
         - gocyclo
+    - path: ".+_test.go$"
+      linters:
+        - dupl
 

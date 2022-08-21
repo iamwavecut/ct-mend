@@ -106,7 +106,6 @@ func (s *TLSTestSuite) TestClientHandlers() {
 			tc.handle(resp, req)
 			s.Assert().Equal(tc.resultCode, resp.Code)
 		})
-
 	}
 }
 
@@ -192,7 +191,6 @@ func (s *TLSTestSuite) TestProjectHandlers() {
 			tc.handle(resp, req)
 			s.Assert().Equal(tc.resultCode, resp.Code)
 		})
-
 	}
 }
 

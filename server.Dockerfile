@@ -5,15 +5,14 @@ WORKDIR /build
 COPY go.mod go.sum ./
 RUN go mod download && \
     apk update && \
-    apk add --no-cache upx gcc g++ && \
+    apk add --no-cache upx openssl gcc g++ make bash && \
     go get github.com/golang-migrate/migrate/v4/cmd/migrate && \
     go install -tags 'sqlite3' github.com/golang-migrate/migrate/v4/cmd/migrate
+
 COPY . .
 RUN migrate -database sqlite3://db.sqlite -path resources/migrations up && \
-    CGO_ENABLED=1 \
-    GOOS=linux \
-    GOARCH=amd64 \
-    go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go && chmod +x server && upx ./server
+    make generate && \
+    make build && chmod +x server && upx ./server
 
 RUN wget --header="accept-encoding: gzip" https://github.com/robxu9/bash-static/releases/download/5.1.016-1.2.3/bash-linux-x86_64 -O bash && \
     chmod +x bash && \
