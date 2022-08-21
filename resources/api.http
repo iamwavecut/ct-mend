@@ -1,0 +1,239 @@
+### Clients
+GET https://{{host}}/clients/
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Headers option exists", function() {
+        client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+    });
+
+    client.test("Response content-type is json", function() {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Client by ID
+GET https://{{host}}/clients/1
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Headers option exists", function() {
+        client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+    });
+
+    client.test("Response content-type is json", function() {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Client by ID fail
+GET https://{{host}}/clients/9999
+Accept: application/json
+
+> {%
+    client.test("Request should return 404", function() {
+        client.assert(response.status === 404, "Response status is not 200");
+    });
+%}
+
+### Post Client
+POST https://{{host}}/clients/
+Accept: application/json
+Content-Type: application/json
+
+{"name":"Client {{$randomInt}}","settings":{"code_scan_interval":{{$randomInt}}}}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    client.test("Body check", function() {
+        client.assert(typeof response.body === 'object', 'Body is not an object');
+        client.assert(typeof response.body.id === 'number', 'ID is not a number');
+        client.assert(response.body.id > 0, 'Zero value ID');
+    });
+%}
+
+### Put Client 5
+PUT https://{{host}}/clients/5
+Accept: application/json
+Content-Type: application/json
+
+{"id":5,"name":"Giantsoft","settings":{"code_scan_interval":{{$randomInt}}000}}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    client.test("Body check", function() {
+        client.assert(typeof response.body === 'object', 'Body is not an object');
+        client.assert(typeof response.body.id === 'number', 'ID is not a number');
+        client.assert(response.body.id === 5, 'Wrong ID: ' + response.body.id);
+    });
+%}
+
+### Delete Client 5
+DELETE https://{{host}}/clients/5
+Accept: application/json
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 204, "Response status is not 204");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+    });
+%}
+
+### Delete unexistent Client 9999
+DELETE https://{{host}}/clients/9999
+Accept: application/json
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+
+
+### Projects
+GET https://{{host}}/projects/
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Headers option exists", function() {
+        client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+    });
+
+    client.test("Response content-type is json", function() {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Project by ID
+GET https://{{host}}/projects/1
+Accept: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+
+    client.test("Headers option exists", function() {
+        client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+    });
+
+    client.test("Response content-type is json", function() {
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+%}
+
+### Project by ID fail
+GET https://{{host}}/projects/9999
+Accept: application/json
+
+> {%
+    client.test("Request should return 404", function() {
+        client.assert(response.status === 404, "Response status is not 200");
+    });
+%}
+
+### Post Project
+POST https://{{host}}/projects/
+Accept: application/json
+Content-Type: application/json
+
+{"name":"Project {{$randomInt}}","client_id":{{$randomInt}}}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    client.test("Body check", function() {
+        client.assert(typeof response.body === 'object', 'Body is not an object');
+        client.assert(typeof response.body.id === 'number', 'ID is not a number');
+        client.assert(response.body.id > 0, 'Zero value ID');
+    });
+%}
+
+### Put Project 9
+PUT https://{{host}}/projects/9
+Accept: application/json
+Content-Type: application/json
+
+{"id":9,"name":"NFT De-minter","client_id":{{$randomInt}}}
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 201, "Response status is not 201");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+        const type = response.contentType.mimeType;
+        client.assert(type === "application/json", "Expected 'application/json' but received '" + type + "'");
+    });
+
+    client.test("Body check", function() {
+        client.assert(typeof response.body === 'object', 'Body is not an object');
+        client.assert(typeof response.body.id === 'number', 'ID is not a number');
+        client.assert(response.body.id === 9, 'Wrong ID: ' + response.body.id);
+    });
+%}
+
+### Delete Project 9
+DELETE https://{{host}}/projects/9
+Accept: application/json
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 204, "Response status is not 204");
+        client.test("Headers option exists", function() {
+            client.assert(response.hasOwnProperty("headers"), "Cannot find 'headers' option in response");
+        });
+    });
+%}
+
+### Delete unexistent Project 9999
+DELETE https://{{host}}/projects/9999
+Accept: application/json
+Content-Type: application/json
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+

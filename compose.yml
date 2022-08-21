@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    build:
+      context: .
+      dockerfile: mongo.Dockerfile
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: "mend"
+      MONGO_INITDB_ROOT_USERNAME: "mend"
+      MONGO_INITDB_ROOT_PASSWORD: "mend"
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+      args:
+        TLS_ADDR: "${TLS_ADDR-server:8443}"
+        STORAGE_TYPE: "${STORAGE_TYPE-sqlite}"
+        STORAGE_ADDR: "${STORAGE_ADDR-db.sqlite}"
+        LOG_LEVEL: "${LOG_LEVEL-trace}"
+        GRACEFUL_TIMEOUT: "${GRACEFUL_TIMEOUT-5s}"
+    restart: always
+#    environment:
+#      TLS_ADDR: "${TLS_ADDR-server:8443}"
+#      STORAGE_TYPE: "${STORAGE_TYPE-sqlite}"
+#      STORAGE_ADDR: "${STORAGE_ADDR-db.sqlite}"
+#      LOG_LEVEL: "${LOG_LEVEL-trace}"
+#      GRACEFUL_TIMEOUT: "${GRACEFUL_TIMEOUT-5s}"
+    ports:
+      - "8443:8443"
+    expose:
+      - "8443"
+    depends_on:
+      - mongo
+

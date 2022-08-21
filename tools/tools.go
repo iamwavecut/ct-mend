@@ -1,12 +1,35 @@
-//go:build tools
-// +build tools
-
+// Package tools Useful general purpose tools
 package tools
 
-// Manage tool dependencies via go.mod.
-//
-// https://github.com/golang/go/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module
-// https://github.com/golang/go/issues/25922
 import (
-	_ "github.com/golangci/golangci-lint/cmd/golangci-lint"
+	"crypto/rand"
+	"math/big"
+
+	log "github.com/sirupsen/logrus"
 )
+
+// Try Probe the error and return bool, optionally log the message.
+func Try(err error, verbose ...bool) bool {
+	if err != nil {
+		if len(verbose) > 0 && verbose[0] {
+			log.WithError(err).Errorln("")
+		}
+		return false
+	}
+	return true
+}
+
+// Must Tolerates no errors.
+func Must(err error) {
+	if !Try(err) {
+		log.WithError(err).Panicln("fatal error")
+	}
+}
+
+// RandInt Return a random in specified range.
+func RandInt(min, max int) int {
+	bInt, err := rand.Int(rand.Reader, big.NewInt(int64(max-min)))
+	Must(err)
+	bInt = bInt.Add(bInt, big.NewInt(int64(min)))
+	return int(bInt.Int64())
+}

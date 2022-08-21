@@ -1,24 +1,24 @@
 .DEFAULT_GOAL := dev
+GOARCH := amd64 # change to arm64 if on mac m1/m2 or surface
+PWD := $(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 
 .PHONY: dev
-dev: ## dev build
-dev: clean install generate vet fmt lint test mod-tidy
+dev: ## test lint cleanup
+dev: go-clean generate vet fmt lint test mod-tidy
 
-.PHONY: ci
-ci: ## CI build
-ci: dev diff
-
-.PHONY: clean
-clean: ## remove files created during build pipeline
-	rm -rf dist
-	rm -f coverage.*
-
-.PHONY: install
-install: ## go install tools
-	cd tools && go install $(shell cd tools && go list -f '{{ join .Imports " " }}' -tags=tools)
+.PHONY: build build-linux build-win build-mac
+build: ## build server binary
+build: build-linux
+build-linux: generate mod-tidy
+	CGO_ENABLED=1 GOOS=linux GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go
+build-win: generate mod-tidy
+	CGO_ENABLED=1 GOOS=windows GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server.exe cmd/server/main.go
+build-mac: generate mod-tidy
+	CGO_ENABLED=1 GOOS=darwin GOARCH=${GOARCH} go build -ldflags='-w -s -extldflags "-static"' -o server cmd/server/main.go
 
 .PHONY: generate
 generate: ## go generate
+	docker run -v "${PWD}":/src -w /src vektra/mockery --all --keeptree
 	go generate ./...
 
 .PHONY: vet
@@ -42,20 +42,14 @@ test:
 .PHONY: mod-tidy
 mod-tidy: ## go mod tidy
 	go mod tidy
-	cd tools && go mod tidy
-
-.PHONY: diff
-diff: ## git diff
-	git diff --exit-code
-	RES=$$(git status --porcelain) ; if [ -n "$$RES" ]; then echo $$RES && exit 1 ; fi
-
-.PHONY: run
-run: ## go run
-	@go run -race .
 
 .PHONY: go-clean
 go-clean: ## go clean build, test and modules caches
 	go clean -r -i -cache -testcache -modcache
+
+.PHONY: run-client
+run-client: ## run client which tries all the api endpoints and prints log output
+	CGO_ENABLED=1 go run cmd/client/main.go
 
 .PHONY: help
 help:
