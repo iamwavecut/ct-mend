@@ -33,3 +33,7 @@ func RandInt(min, max int) int {
 	bInt = bInt.Add(bInt, big.NewInt(int64(min)))
 	return int(bInt.Int64())
 }
+
+func IntPtr(n int) *int {
+	return &n
+}

@@ -18,7 +18,7 @@ build-mac: generate mod-tidy
 
 .PHONY: generate
 generate: ## go generate
-	docker run -v "${PWD}":/src -w /src vektra/mockery --all --keeptree
+	#docker run -v "${PWD}":/src -w /src vektra/mockery --all --inpackage
 	go generate ./...
 
 .PHONY: vet

@@ -4,3 +4,4 @@
 /client
 db.sqlite
 **/*.Dockerfile
+/resources/certs/*

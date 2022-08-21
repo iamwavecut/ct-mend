@@ -52,7 +52,7 @@ func main() {
 		if !tools.Try(err) {
 			return err
 		}
-		return server.New(cfg.TLS, cfg.GracefulTimeout).Listen(ctx, db) //nolint:wrapcheck // just no
+		return server.New(cfg.TLS, db, cfg.GracefulTimeout).Listen(ctx) //nolint:wrapcheck // just no
 	})
 	log.Traceln("hello on", cfg.TLS.Addr, cfg.Storage.Type, cfg.Storage.Addr)
 	if err := eg.Wait(); !tools.Try(err) && errors.Is(err, context.Canceled) {

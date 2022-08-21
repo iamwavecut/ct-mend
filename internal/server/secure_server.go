@@ -64,7 +64,11 @@ func (h *ClientsHandler) Select(w http.ResponseWriter, _ *http.Request) {
 
 func (h *ClientsHandler) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -104,7 +108,11 @@ func (h *ClientsHandler) Post(w http.ResponseWriter, r *http.Request) {
 //nolint:dupl
 func (h *ClientsHandler) Put(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -131,7 +139,11 @@ func (h *ClientsHandler) Put(w http.ResponseWriter, r *http.Request) {
 
 func (h *ClientsHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -162,7 +174,11 @@ func (h *ProjectsHanlder) Select(w http.ResponseWriter, _ *http.Request) {
 
 func (h *ProjectsHanlder) Get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -202,7 +218,11 @@ func (h *ProjectsHanlder) Post(w http.ResponseWriter, r *http.Request) {
 //nolint:dupl
 func (h *ProjectsHanlder) Put(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -229,7 +249,11 @@ func (h *ProjectsHanlder) Put(w http.ResponseWriter, r *http.Request) {
 
 func (h *ProjectsHanlder) Delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ID, err := strconv.Atoi(vars["id"])
+	sid, ok := vars["id"]
+	if !ok {
+		sid = r.URL.Query().Get("id")
+	}
+	ID, err := strconv.Atoi(sid)
 	if !try(w, err) {
 		return
 	}
@@ -242,54 +266,61 @@ func (h *ProjectsHanlder) Delete(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func New(config config.TLS, gracefulTimeout time.Duration) *TLS {
-	return &TLS{
+func New(config config.TLS, db storage.Adapter, gracefulTimeout time.Duration) *TLS {
+	r := mux.NewRouter().UseEncodedPath()
+	r.StrictSlash(true)
+	r.Use(loggingMiddleware, compressMiddleware, jsonMiddleware)
+
+	initObjectHandler("/clients", r, (&ClientsHandler{}).WithStorageAdapter(db))
+	initObjectHandler("/projects", r, (&ProjectsHanlder{}).WithStorageAdapter(db))
+
+	cfg := &tls.Config{
+		MinVersion:       tls.VersionTLS13,
+		CurvePreferences: []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		CipherSuites: []uint16{
+			tls.TLS_CHACHA20_POLY1305_SHA256,
+			tls.TLS_AES_128_GCM_SHA256,
+			tls.TLS_AES_256_GCM_SHA384,
+		},
+		GetCertificate: func(_ *tls.ClientHelloInfo) (*tls.Certificate, error) {
+			crt, err := resources.FS.ReadFile("certs/server.rsa.crt")
+			if err != nil {
+				return nil, err
+			}
+			key, err := resources.FS.ReadFile("certs/server.rsa.key")
+			if err != nil {
+				return nil, err
+			}
+			certificate, err := tls.X509KeyPair(crt, key)
+			return &certificate, err
+		},
+	}
+
+	s := &TLS{
 		addr:    config.Addr,
 		timeout: gracefulTimeout,
 	}
+
+	server := s.server
+	if server == nil {
+		server = &http.Server{}
+	}
+
+	s.server = &http.Server{
+		ReadHeaderTimeout: s.timeout,
+		Addr:              s.addr,
+		Handler:           r,
+		TLSConfig:         cfg,
+		TLSNextProto:      make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
+		ErrorLog:          stdlog.Default(),
+	}
+
+	return s
 }
 
-func (s *TLS) Listen(ctx context.Context, db storage.Adapter) error {
+func (s *TLS) Listen(ctx context.Context) error {
 	eg, ctx := errgroup.WithContext(ctx)
 	eg.Go(func() error {
-		r := mux.NewRouter().UseEncodedPath()
-		r.StrictSlash(true)
-		r.Use(loggingMiddleware, compressMiddleware, jsonMiddleware)
-
-		initObjectHandler("/clients", r, (&ClientsHandler{}).WithStorageAdapter(db))
-		initObjectHandler("/projects", r, (&ProjectsHanlder{}).WithStorageAdapter(db))
-
-		cfg := &tls.Config{
-			MinVersion:       tls.VersionTLS13,
-			CurvePreferences: []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
-			CipherSuites: []uint16{
-				tls.TLS_CHACHA20_POLY1305_SHA256,
-				tls.TLS_AES_128_GCM_SHA256,
-				tls.TLS_AES_256_GCM_SHA384,
-			},
-			GetCertificate: func(_ *tls.ClientHelloInfo) (*tls.Certificate, error) {
-				crt, err := resources.FS.ReadFile("certs/server.rsa.crt")
-				if err != nil {
-					return nil, err
-				}
-				key, err := resources.FS.ReadFile("certs/server.rsa.key")
-				if err != nil {
-					return nil, err
-				}
-				certificate, err := tls.X509KeyPair(crt, key)
-				return &certificate, err
-			},
-		}
-
-		s.server = &http.Server{
-			ReadHeaderTimeout: s.timeout,
-			Addr:              s.addr,
-			Handler:           r,
-			TLSConfig:         cfg,
-			TLSNextProto:      make(map[string]func(*http.Server, *tls.Conn, http.Handler), 0),
-			ErrorLog:          stdlog.Default(),
-		}
-
 		return s.server.ListenAndServeTLS("", "")
 	})
 
