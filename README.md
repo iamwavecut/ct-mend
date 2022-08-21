@@ -14,10 +14,10 @@ The problem
 #### Build a small application exposing CRUD endpoints through a REST API:
 
 >- It can be any kind of data/object that can be created, retrieved, updated and deleted on endpoints
-  accepting POST, GET, PUT and DELETE methods.
+   accepting POST, GET, PUT and DELETE methods.
 >- Independent of Database. You can swap out Oracle or SQL Server, for Mongo, BigTable, CouchDB,
-  or something else. The business rules are not bound to the database. Provide an implementation
-  of SQL and NOSQL (any kind) for the above CRUD operations.
+   or something else. The business rules are not bound to the database. Provide an implementation
+   of SQL and NOSQL (any kind) for the above CRUD operations.
 >- Provide tests. The API can be tested without the Database or any other external element.
 >- Dockerize the solution, e.g. provide a Dockerfile to run it.
 >- The API server should listen on TLS only.
@@ -25,7 +25,7 @@ The problem
 >- Please push your code to a GitHub repository or send us an archive.
 >- Include a Readme helping us run your service.
 >- Include a section about your thought process explaining your choices and share other alternative
-  designs you considered.
+   designs you considered.
 >- Add any information you deem interesting for us to better understand your assignment.
 >#### We'll evaluate
 >- The readability of your code (including readability of your tests)
@@ -97,16 +97,16 @@ vet                            go vet
 ```
 
 #### Boring details, worth mentioning
-To not deal with too much or too little boilerplate code I decided to try scaffolding my project from [golang-templates/seed](https://github.com/golang-templates/seed). It's a good starting point for the small projects.
+To not deal with too much or too little boilerplate code I decided to try scaffolding my project from [golang-templates/seed](https://github.com/golang-templates/seed). It's a good starting point for small projects.
 
-I've created `storage.Adapter` interface to abstract business from storage, two adapters included:
-- SQLIte v3 _(default)_
+I've created a `storage.Adapter` interface to abstract business from storage, two adapters included:
+- SQLite v3 _(default)_
 - MongoDB
 
-HTTP Server is listening on `:8443` by default. TLS certificates are generated during `make generate` and, off course, on the docker container build, and getting embedded into binary to not be easily accessible in container.
+HTTP Server is listening on `:8443` by default. TLS certificates are generated during `make generate` and, of course, on the docker container build and getting embedded into binary to not be easily accessible in the container.
 
 ##### Testing
-To be honest, there is not much to test on the go side, because it relies on `stdlib` and well-tested 3'rd party components. MongoDB driver is hard to test, in particular, as every move must be mocked and it's a lot of work, comparable with all the code test in volume. The only reasonable unit test I made is HTTP handlers test, which may be run by `make test` and yet, it lacks of test-cases.
+To be honest, there is not much to test on the go side, because it relies on `stdlib` and well-tested 3'rd party components. MongoDB driver is hard to test, in particular, as every move must be mocked and it's a lot of work, comparable with a whole code test in efforts. The only reasonable unit test I made is the HTTP handlers test, which may be run by `make test` and yet, it lacks negative test cases.
 
 Instead, I made integration testing easier. I created another executable - `client`. In fact, its parsing [resources/api.http](resources/api.http) and executing every request found, printing the result to log.
 As an alternative, you may use Jetbrains HTTP client to test API using provided [resources/api.http](resources/api.http) file. It also comes with tests bundled.
