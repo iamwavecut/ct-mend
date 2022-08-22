@@ -79,9 +79,9 @@ Server configuration can be set
 As fast as
 ```shell
 make build
-nohup server # outputs e.g. [1] 12345
+nohup server & # outputs e.g. [1] 12345
 make run-client
-kill -9 12345
+kill -9 12345 # or `fg`⏎, Ctrl+C
 ```
 To list all `Makefile` targets, call `make help`:
 ```shell
