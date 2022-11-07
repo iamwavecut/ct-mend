@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.1
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	go.mongodb.org/mongo-driver v1.11.0
 	golang.org/x/sync v0.0.0-20220819030929-7fc1605a5dde
@@ -30,7 +30,7 @@ require (
 	github.com/onsi/ginkgo v1.16.5 // indirect
 	github.com/onsi/gomega v1.20.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/objx v0.4.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.1 // indirect
 	github.com/xdg-go/stringprep v1.0.3 // indirect
